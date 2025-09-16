@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN - Cyber Escape Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="admin-mode">
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>🎮 CYBER ESCAPE GAME - CONTRÔLE MISSION</h1>
+            <div class="admin-controls">
+                <div class="global-timer">
+                    ⏰ Temps global: <span id="globalTimer">30:00</span>
+                </div>
+                <div class="control-buttons">
+                    <button onclick="pauseAllGames()" class="btn-pause">⏸️ PAUSE GÉNÉRALE</button>
+                    <button onclick="resumeAllGames()" class="btn-resume">▶️ REPRENDRE</button>
+                    <button onclick="resetAllGames()" class="btn-reset">🔄 RESET COMPLET</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="teams-grid" id="teamsGrid">
+                <!-- Les équipes seront injectées dynamiquement -->
+            </div>
+
+            <div class="admin-sidebar">
+                <div class="quick-actions">
+                    <h3>⚡ Actions Rapides</h3>
+                    <button onclick="broadcastMessage()" class="quick-btn">📢 MESSAGE GLOBAL</button>
+                    <button onclick="giveHintAll()" class="quick-btn">💡 INDICE GÉNÉRAL</button>
+                    <button onclick="showLeaderboard()" class="quick-btn">🏆 CLASSEMENT</button>
+                    <button onclick="exportResults()" class="quick-btn">📊 EXPORT RÉSULTATS</button>
+                    <button onclick="refreshConnections()" class="quick-btn">🔄 ACTUALISER CONNEXIONS</button>
+                </div>
+
+                <div class="game-stats">
+                    <h3>📈 Statistiques</h3>
+                    <div class="stat-item">
+                        <span>Équipes connectées:</span>
+                        <span id="connectedTeams" class="stat-highlight">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Équipes actives:</span>
+                        <span id="activeTeams">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Énigmes résolues:</span>
+                        <span id="totalSolved">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Temps moyen:</span>
+                        <span id="averageTime">--:--</span>
+                    </div>
+                </div>
+
+                <div class="live-connections">
+                    <h3>🟢 Connexions Live</h3>
+                    <div id="liveConnectionsList" class="connections-list">
+                        <div class="no-connections">Aucune équipe connectée</div>
+                    </div>
+                </div>
+
+                <div class="announcements">
+                    <h3>📋 Annonces Programmées</h3>
+                    <div class="announcement-list">
+                        <div class="announcement-item">
+                            <span>5 min: "Hackers détectent votre intervention !"</span>
+                            <button onclick="triggerAnnouncement(1)">📢</button>
+                        </div>
+                        <div class="announcement-item">
+                            <span>15 min: "50% des systèmes compromis !"</span>
+                            <button onclick="triggerAnnouncement(2)">📢</button>
+                        </div>
+                        <div class="announcement-item">
+                            <span>25 min: "Plus que 5 minutes !"</span>
+                            <button onclick="triggerAnnouncement(3)">📢</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal pour messages -->
+        <div id="messageModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3>📢 Message Global</h3>
+                <textarea id="broadcastText" placeholder="Tapez votre message..."></textarea>
+                <div class="modal-buttons">
+                    <button onclick="sendBroadcast()" class="btn-send">Envoyer</button>
+                    <button onclick="closeModal()" class="btn-cancel">Annuler</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Leaderboard -->
+        <div id="leaderboardModal" class="modal">
+            <div class="modal-content large">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3>🏆 Classement en Temps Réel</h3>
+                <div id="leaderboardContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        // Données des équipes (simulation)
+        let teamsData = [
+            {id: 'TEAM01', name: 'Cyber Warriors', progress: 0, currentEnigma: 1, time: 0, attempts: 0, hints: 0, status: 'active'},
+            {id: 'TEAM02', name: 'Digital Guardians', progress: 0, currentEnigma: 1, time: 0, attempts: 0, hints: 0, status: 'active'},
+            {id: 'TEAM03', name: 'Security Squad', progress: 0, currentEnigma: 1, time: 0, attempts: 0, hints: 0, status: 'active'},
+            {id: 'TEAM04', name: 'Code Breakers', progress: 0, currentEnigma: 1, time: 0, attempts: 0, hints: 0, status: 'active'},
+            {id: 'TEAM05', name: 'Byte Force', progress: 0, currentEnigma: 1, time: 0, attempts: 0, hints: 0, status: 'active'},
+            {id: 'TEAM06', name: 'Firewall Fighters', progress: 0, currentEnigma: 1, time: 0, attempts: 0, hints: 0, status: 'active'},
+        ];
+
+        let gameStarted = false;
+        let globalTime = 30 * 60; // 30 minutes
+
+        // Initialisation
+        window.onload = function() {
+            renderTeams();
+            startGlobalTimer();
+            simulateTeamProgress(); // Simulation pour démo
+        };
+
+        function renderTeams() {
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = '';
+
+            teamsData.forEach(team => {
+                const progressPercent = (team.progress / 6) * 100;
+                const statusClass = team.status === 'completed' ? 'completed' : team.status === 'paused' ? 'paused' : 'active';
+                const connectionClass = team.connectionStatus || 'offline';
+                
+                // Calcul du temps depuis la dernière activité
+                let lastSeenText = '';
+                if (team.lastUpdate) {
+                    const timeSince = Math.floor((Date.now() - team.lastUpdate) / 1000);
+                    if (timeSince < 60) {
+                        lastSeenText = 'En ligne maintenant';
+                    } else if (timeSince < 3600) {
+                        lastSeenText = `Il y a ${Math.floor(timeSince / 60)} min`;
+                    } else {
+                        lastSeenText = `Il y a ${Math.floor(timeSince / 3600)}h`;
+                    }
+                } else {
+                    lastSeenText = 'Jamais connecté';
+                }
+                
+                const teamCard = `
+                    <div class="team-card ${statusClass} ${connectionClass}">
+                        <div class="team-header">
+                            <h4>
+                                <span class="connection-indicator ${connectionClass}"></span>
+                                ${team.name}
+                            </h4>
+                            <span class="team-id">${team.id}</span>
+                        </div>
+                        
+                        <div class="team-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span>Énigmes: ${team.progress}/6</span>
+                                <span>Temps: ${formatTime(team.time)}</span>
+                            </div>
+                        </div>
+
+                        <div class="team-details">
+                            <div class="detail-item">
+                                <span>Énigme actuelle:</span>
+                                <span class="current-enigma">${team.currentEnigma}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Tentatives:</span>
+                                <span>${team.attempts}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Indices utilisés:</span>
+                                <span>${team.hints}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Statut:</span>
+                                <span class="connection-status ${connectionClass}">
+                                    ${connectionClass === 'active' ? '🟢 En ligne' : 
+                                      connectionClass === 'connected' ? '🟡 Connecté' : '🔴 Hors ligne'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="last-seen">${lastSeenText}</div>
+
+                        <div class="team-actions">
+                            <button onclick="giveHint('${team.id}')" class="btn-hint">💡 Indice</button>
+                            <button onclick="viewTeam('${team.id}')" class="btn-view">👁️ Observer</button>
+                            <button onclick="pauseTeam('${team.id}')" class="btn-pause-team">⏸️</button>
+                        </div>
+                    </div>
+                `;
+                
+                grid.innerHTML += teamCard;
+            });
+
+            updateStats();
+        }
+
+        // Initialisation avec indicateurs temps réel
+        window.onload = function() {
+            addRealTimeIndicators();
+            addConnectionStyles();
+            renderTeams();
+            startGlobalTimer();
+            
+            // Scan initial des équipes connectées
+            updateConnectedTeamsDisplay();
+            
+            // Mise à jour périodique des équipes connectées (toutes les 10 secondes)
+            setInterval(updateConnectedTeamsDisplay, 10000);
+            
+            // Simulation pour la démo (à supprimer en production)
+            simulateTeamProgress();
+            
+            // Simulation de connexions d'équipes pour la démo
+            simulateTeamConnections();
+            
+            // Message de bienvenue admin
+            setTimeout(() => {
+                showNotification('🎮 Dashboard Admin initialisé', 'info');
+            }, 1000);
+        };
+
+        function simulateTeamConnections() {
+            // Simulation de quelques équipes qui se connectent
+            setTimeout(() => {
+                // Simuler TEAM01 qui se connecte
+                localStorage.setItem('adminStats_TEAM01', JSON.stringify({
+                    team: 'TEAM01',
+                    progress: 0,
+                    currentEnigma: 1,
+                    time: 0,
+                    attempts: 0,
+                    hints: 0,
+                    timestamp: Date.now()
+                }));
+            }, 2000);
+            
+            setTimeout(() => {
+                // Simuler TEAM02 qui se connecte
+                localStorage.setItem('adminStats_TEAM02', JSON.stringify({
+                    team: 'TEAM02',
+                    progress: 1,
+                    currentEnigma: 2,
+                    time: 180,
+                    attempts: 2,
+                    hints: 0,
+                    timestamp: Date.now()
+                }));
+            }, 5000);
+            
+            setTimeout(() => {
+                // Simuler TEAM03 qui se connecte
+                localStorage.setItem('adminStats_TEAM03', JSON.stringify({
+                    team: 'TEAM03',
+                    progress: 0,
+                    currentEnigma: 1,
+                    time: 45,
+                    attempts: 1,
+                    hints: 1,
+                    timestamp: Date.now()
+                }));
+            }, 8000);
+        }
+
+        function startGlobalTimer() {
+            const timerElement = document.getElementById('globalTimer');
+            
+            const timer = setInterval(() => {
+                if (globalTime <= 0) {
+                    clearInterval(timer);
+                    endGame();
+                    return;
+                }
+                
+                globalTime--;
+                timerElement.textContent = formatTime(globalTime);
+                
+                // Mise à jour du temps pour chaque équipe
+                teamsData.forEach(team => {
+                    if (team.status === 'active') {
+                        team.time++;
+                    }
+                });
+                
+                // Déclenchement d'annonces automatiques
+                checkAutoAnnouncements();
+                
+                // Mise à jour de l'affichage
+                renderTeams();
+                
+            }, 1000);
+        }
+
+        function checkAutoAnnouncements() {
+            const remaining = globalTime;
+            
+            if (remaining === 25 * 60) {
+                triggerAnnouncement(1);
+            } else if (remaining === 15 * 60) {
+                triggerAnnouncement(2);
+            } else if (remaining === 5 * 60) {
+                triggerAnnouncement(3);
+            }
+        }
+
+        function simulateTeamProgress() {
+            // Simulation de progression d'équipes pour la démo
+            setInterval(() => {
+                if (Math.random() > 0.7) { // 30% de chance
+                    const randomTeam = teamsData[Math.floor(Math.random() * teamsData.length)];
+                    if (randomTeam.status === 'active' && randomTeam.progress < 6) {
+                        if (Math.random() > 0.5) {
+                            randomTeam.progress++;
+                            randomTeam.currentEnigma = Math.min(randomTeam.currentEnigma + 1, 6);
+                        } else {
+                            randomTeam.attempts++;
+                        }
+                    }
+                }
+            }, 5000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateStats() {
+            const connectedTeams = scanConnectedTeams();
+            const activeCount = connectedTeams.filter(team => team.isActive).length;
+            const totalSolved = teamsData.reduce((sum, team) => sum + team.progress, 0);
+            const avgTime = teamsData.reduce((sum, team) => sum + team.time, 0) / teamsData.length;
+
+            document.getElementById('connectedTeams').textContent = connectedTeams.length;
+            document.getElementById('activeTeams').textContent = activeCount;
+            document.getElementById('totalSolved').textContent = totalSolved;
+            document.getElementById('averageTime').textContent = formatTime(Math.floor(avgTime));
+            
+            // Mise à jour de la liste des connexions live
+            updateLiveConnectionsList(connectedTeams);
+        }
+
+        function updateLiveConnectionsList(connectedTeams) {
+            const listContainer = document.getElementById('liveConnectionsList');
+            
+            if (connectedTeams.length === 0) {
+                listContainer.innerHTML = '<div class="no-connections">Aucune équipe connectée</div>';
+                return;
+            }
+            
+            let listHTML = '';
+            connectedTeams.forEach(team => {
+                const teamData = teamsData.find(t => t.id === team.teamId);
+                const statusIcon = team.isActive ? '🟢' : '🟡';
+                const timeSince = Math.floor((Date.now() - team.lastActivity) / 1000);
+                const timeText = timeSince < 60 ? 'maintenant' : `il y a ${Math.floor(timeSince/60)}min`;
+                
+                listHTML += `
+                    <div class="connection-item ${team.isActive ? 'active' : 'inactive'}">
+                        <div class="connection-header">
+                            <span class="status-icon">${statusIcon}</span>
+                            <span class="team-name">${teamData?.name || team.teamId}</span>
+                        </div>
+                        <div class="connection-details">
+                            <small>Énigme ${teamData?.currentEnigma || 1} • ${timeText}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = listHTML;
+        }
+
+        function refreshConnections() {
+            updateConnectedTeamsDisplay();
+            showNotification('🔄 Connexions actualisées', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `admin-notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'info' ? '#0066ff' : '#00ff00'};
+                color: white;
+                border-radius: 5px;
+                font-weight: bold;
+                z-index: 5000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Ajout des styles pour les connexions live
+        function addConnectionStyles() {
+            const style = document.createElement('style');
+            style.textContent = `
+                .live-connections {
+                    background: rgba(0, 0, 0, 0.8);
+                    border: 2px solid #00ff00;
+                    border-radius: 10px;
+                    padding: 20px;
+                }
+                
+                .live-connections h3 {
+                    color: #00ff00;
+                    margin-bottom: 15px;
+                    font-size: 16px;
+                }
+                
+                .connections-list {
+                    max-height: 200px;
+                    overflow-y: auto;
+                }
+                
+                .connection-item {
+                    padding: 8px 12px;
+                    margin-bottom: 8px;
+                    background: rgba(0, 255, 0, 0.05);
+                    border-left: 3px solid #666;
+                    border-radius: 5px;
+                    transition: all 0.3s ease;
+                }
+                
+                .connection-item.active {
+                    border-left-color: #00ff00;
+                    background: rgba(0, 255, 0, 0.1);
+                }
+                
+                .connection-item.inactive {
+                    border-left-color: #ffaa00;
+                    background: rgba(255, 170, 0, 0.1);
+                }
+                
+                .connection-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 4px;
+                }
+                
+                .status-icon {
+                    font-size: 12px;
+                }
+                
+                .team-name {
+                    font-weight: bold;
+                    color: white;
+                    font-size: 12px;
+                }
+                
+                .connection-details small {
+                    color: #aaa;
+                    font-size: 10px;
+                }
+                
+                .no-connections {
+                    text-align: center;
+                    color: #666;
+                    font-style: italic;
+                    padding: 20px;
+                }
+                
+                .stat-highlight {
+                    color: #00ff00 !important;
+                    font-weight: bold;
+                    font-size: 16px;
+                }
+                
+                @keyframes slideInRight {
+                    from { transform: translateX(400px); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(400px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Actions d'administration
+        function pauseAllGames() {
+            teamsData.forEach(team => {
+                if (team.status === 'active') team.status = 'paused';
+            });
+            renderTeams();
+            broadcastSystemMessage("⏸️ PAUSE GÉNÉRALE - Attendez les instructions");
+        }
+
+        function resumeAllGames() {
+            teamsData.forEach(team => {
+                if (team.status === 'paused') team.status = 'active';
+            });
+            renderTeams();
+            broadcastSystemMessage("▶️ REPRISE DU JEU - Continuez votre mission !");
+        }
+
+        function giveHint(teamId) {
+            const team = teamsData.find(t => t.id === teamId);
+            if (team) {
+                team.hints++;
+                const hint = getHintForEnigma(team.currentEnigma);
+                // Dans une vraie implémentation, on enverrait l'indice à l'équipe
+                alert(`Indice envoyé à ${teamId}: ${hint}`);
+                renderTeams();
+            }
+        }
+
+        function getHintForEnigma(enigmaNumber) {
+            const hints = {
+                1: "Pensez à l'alphabet et aux chiffres... A=1, B=2...",
+                2: "Regardez attentivement les domaines et les URLs",
+                3: "Superposez les éléments pour reconstituer l'image",
+                4: "Méfiez-vous des noms trop similaires aux vrais réseaux",
+                5: "Les informations personnelles sont souvent utilisées dans les mots de passe",
+                6: "Additionnez tous les chiffres que vous avez trouvés"
+            };
+            return hints[enigmaNumber] || "Continuez à chercher !";
+        }
+
+        function broadcastMessage() {
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        function sendBroadcast() {
+            const message = document.getElementById('broadcastText').value;
+            if (message.trim()) {
+                broadcastSystemMessage(message);
+                closeModal();
+                document.getElementById('broadcastText').value = '';
+            }
+        }
+
+        function broadcastSystemMessage(message) {
+            // Dans une vraie implémentation, ceci enverrait le message à toutes les équipes
+            console.log('Broadcast:', message);
+            
+            // Simulation d'affichage du message
+            const notification = document.createElement('div');
+            notification.className = 'broadcast-notification';
+            notification.textContent = `📢 ${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function triggerAnnouncement(announcementId) {
+            const announcements = {
+                1: "🚨 Les hackers ont détecté votre intervention ! Ils accélèrent leur attaque !",
+                2: "⚠️ ALERTE CRITIQUE ! 50% des systèmes sont maintenant compromis !",
+                3: "🔥 DERNIÈRE LIGNE DROITE ! Plus que 5 minutes pour sauver l'université !"
+            };
+            
+            broadcastSystemMessage(announcements[announcementId]);
+        }
+
+        function showLeaderboard() {
+            const sortedTeams = [...teamsData].sort((a, b) => {
+                if (a.progress !== b.progress) return b.progress - a.progress;
+                return a.time - b.time;
+            });
+
+            let leaderboardHTML = '<div class="leaderboard">';
+            sortedTeams.forEach((team, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                leaderboardHTML += `
+                    <div class="leaderboard-item">
+                        <span class="rank">${medal}</span>
+                        <span class="team-name">${team.name}</span>
+                        <span class="team-progress">${team.progress}/6</span>
+                        <span class="team-time">${formatTime(team.time)}</span>
+                    </div>
+                `;
+            });
+            leaderboardHTML += '</div>';
+
+            document.getElementById('leaderboardContent').innerHTML = leaderboardHTML;
+            document.getElementById('leaderboardModal').style.display = 'block';
+        }
+
+        function scanConnectedTeams() {
+            // Scan des équipes connectées via localStorage
+            const connectedTeams = [];
+            const allTeamIds = teamsData.map(team => team.id);
+            
+            allTeamIds.forEach(teamId => {
+                // Vérifier si l'équipe a des données récentes (moins de 5 minutes)
+                const teamProgress = localStorage.getItem(`gameProgress_${teamId}`);
+                const adminStats = localStorage.getItem(`adminStats_${teamId}`);
+                
+                if (teamProgress || adminStats) {
+                    try {
+                        const data = JSON.parse(teamProgress || adminStats || '{}');
+                        const lastActivity = data.lastSave || data.timestamp || 0;
+                        const now = Date.now();
+                        
+                        // Considérer comme connectée si activité dans les 5 dernières minutes
+                        if (now - lastActivity < 5 * 60 * 1000) {
+                            connectedTeams.push({
+                                teamId: teamId,
+                                lastActivity: lastActivity,
+                                isActive: now - lastActivity < 60 * 1000 // Active si < 1 minute
+                            });
+                        }
+                    } catch (e) {
+                        console.log(`Erreur parsing données ${teamId}:`, e);
+                    }
+                }
+            });
+            
+            return connectedTeams;
+        }
+
+        function updateConnectedTeamsDisplay() {
+            const connectedTeams = scanConnectedTeams();
+            const activeTeams = connectedTeams.filter(team => team.isActive);
+            
+            // Mise à jour du compteur d'équipes actives
+            document.getElementById('activeTeams').textContent = connectedTeams.length;
+            
+            // Mise à jour du statut des équipes dans la grille
+            teamsData.forEach(team => {
+                const connectedTeam = connectedTeams.find(ct => ct.teamId === team.id);
+                const isConnected = !!connectedTeam;
+                const isActive = connectedTeam?.isActive || false;
+                
+                // Mise à jour du statut de connexion
+                if (isActive) {
+                    team.connectionStatus = 'active';
+                } else if (isConnected) {
+                    team.connectionStatus = 'connected';
+                } else {
+                    team.connectionStatus = 'offline';
+                }
+                
+                // Synchronisation des données si disponibles
+                if (connectedTeam) {
+                    syncTeamData(team.id);
+                }
+            });
+            
+            // Mise à jour de l'affichage
+            renderTeams();
+            
+            // Affichage des équipes connectées dans la console (debug)
+            if (connectedTeams.length > 0) {
+                console.log(`📊 Équipes connectées: ${connectedTeams.length}, Actives: ${activeTeams.length}`);
+            }
+        }
+
+        function syncTeamData(teamId) {
+            // Synchronisation des données d'une équipe depuis localStorage
+            const teamProgress = localStorage.getItem(`gameProgress_${teamId}`);
+            const adminStats = localStorage.getItem(`adminStats_${teamId}`);
+            
+            if (adminStats) {
+                try {
+                    const stats = JSON.parse(adminStats);
+                    const team = teamsData.find(t => t.id === teamId);
+                    
+                    if (team && stats) {
+                        team.progress = stats.progress || 0;
+                        team.currentEnigma = stats.currentEnigma || 1;
+                        team.time = stats.time || 0;
+                        team.attempts = stats.attempts || 0;
+                        team.hints = stats.hints || 0;
+                        team.lastUpdate = stats.timestamp;
+                    }
+                } catch (e) {
+                    console.error(`Erreur sync équipe ${teamId}:`, e);
+                }
+            }
+        }
+
+        function addRealTimeIndicators() {
+            // Ajout d'indicateurs temps réel dans les cartes d'équipes
+            const style = document.createElement('style');
+            style.textContent = `
+                .connection-indicator {
+                    display: inline-block;
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                    animation: pulse 2s infinite;
+                }
+                
+                .connection-indicator.active {
+                    background: #00ff00;
+                    box-shadow: 0 0 8px #00ff00;
+                }
+                
+                .connection-indicator.connected {
+                    background: #ffaa00;
+                    box-shadow: 0 0 8px #ffaa00;
+                }
+                
+                .connection-indicator.offline {
+                    background: #666666;
+                    animation: none;
+                }
+                
+                .team-card.active {
+                    border-color: #00ff00;
+                    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+                }
+                
+                .team-card.connected {
+                    border-color: #ffaa00;
+                }
+                
+                .team-card.offline {
+                    border-color: #666666;
+                    opacity: 0.7;
+                }
+                
+                .last-seen {
+                    font-size: 10px;
+                    color: #888;
+                    margin-top: 5px;
+                }
+                
+                @keyframes pulse {
+                    0% { opacity: 1; }
+                    50% { opacity: 0.3; }
+                    100% { opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function exportResults() {
+            const results = teamsData.map(team => ({
+                Équipe: team.name,
+                ID: team.id,
+                Énigmes: team.progress,
+                Temps: formatTime(team.time),
+                Tentatives: team.attempts,
+                Indices: team.hints,
+                Statut: team.status
+            }));
+
+            const csv = [
+                Object.keys(results[0]).join(','),
+                ...results.map(row => Object.values(row).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cyber-escape-results-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        function viewTeam(teamId) {
+            // Ouvrir la vue de l'équipe dans un nouvel onglet
+            window.open(`game.html?team=${teamId}&admin=1`, '_blank');
+        }
+
+        function pauseTeam(teamId) {
+            const team = teamsData.find(t => t.id === teamId);
+            if (team) {
+                team.status = team.status === 'active' ? 'paused' : 'active';
+                renderTeams();
+            }
+        }
+
+        function resetAllGames() {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir réinitialiser TOUS les jeux ?')) {
+                teamsData.forEach(team => {
+                    team.progress = 0;
+                    team.currentEnigma = 1;
+                    team.time = 0;
+                    team.attempts = 0;
+                    team.hints = 0;
+                    team.status = 'active';
+                });
+                globalTime = 30 * 60;
+                renderTeams();
+                broadcastSystemMessage('🔄 RESET COMPLET - Tous les jeux ont été réinitialisés');
+            }
+        }
+
+        function endGame() {
+            teamsData.forEach(team => {
+                team.status = 'completed';
+            });
+            renderTeams();
+            broadcastSystemMessage('⏰ TEMPS ÉCOULÉ ! Mission terminée.');
+            showLeaderboard();
+        }
+    </script>
+</body>
+</html>
