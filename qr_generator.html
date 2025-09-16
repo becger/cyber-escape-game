@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur QR Codes - Cyber Escape Game</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000011;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .config-section {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+        .btn {
+            background: #00ff00;
+            color: #000;
+            padding: 12px 24px;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #00cc00;
+        }
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .qr-card {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .qr-code {
+            margin: 15px 0;
+        }
+        .team-info {
+            margin: 10px 0;
+        }
+        .download-btn {
+            background: #0066ff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .print-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+        @media print {
+            .no-print { display: none; }
+            .qr-card { break-inside: avoid; margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 GÉNÉRATEUR QR CODES</h1>
+            <p>Cyber Escape Game - Operation Digital Lockdown</p>
+        </div>
+
+        <div class="config-section no-print">
+            <h2>⚙️ Configuration</h2>
+            
+            <div class="input-group">
+                <label for="baseURL">URL de base du jeu :</label>
+                <input type="text" id="baseURL" value="https://votre-username.github.io/cyber-escape-game" placeholder="Remplacez par votre URL GitHub Pages">
+            </div>
+            
+            <div class="input-group">
+                <label for="teamCount">Nombre d'équipes :</label>
+                <input type="number" id="teamCount" value="8" min="1" max="20">
+            </div>
+            
+            <div class="input-group">
+                <label for="teamPrefix">Préfixe des équipes :</label>
+                <input type="text" id="teamPrefix" value="TEAM" placeholder="Ex: TEAM, GROUPE, EQUIPE">
+            </div>
+            
+            <button class="btn" onclick="generateQRCodes()">🔄 GÉNÉRER LES QR CODES</button>
+            <button class="btn" onclick="window.print()">🖨️ IMPRIMER TOUT</button>
+            <button class="btn" onclick="downloadAllQR()">📥 TÉLÉCHARGER TOUT</button>
+        </div>
+
+        <div id="qrContainer" class="qr-grid">
+            <!-- Les QR codes seront générés ici -->
+        </div>
+
+        <div class="print-section no-print">
+            <h3>📋 Instructions d'utilisation</h3>
+            <ol style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Remplacez l'URL de base par votre URL GitHub Pages</li>
+                <li>Définissez le nombre d'équipes nécessaires</li>
+                <li>Cliquez sur "Générer les QR codes"</li>
+                <li>Imprimez ou téléchargez les QR codes</li>
+                <li>Distribuez un QR code par équipe avant le jeu</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let generatedQRs = [];
+
+        function generateQRCodes() {
+            const baseURL = document.getElementById('baseURL').value.trim();
+            const teamCount = parseInt(document.getElementById('teamCount').value);
+            const teamPrefix = document.getElementById('teamPrefix').value.trim();
+            
+            if (!baseURL) {
+                alert('⚠️ Veuillez saisir l\'URL de base !');
+                return;
+            }
+            
+            if (teamCount < 1 || teamCount > 20) {
+                alert('⚠️ Le nombre d\'équipes doit être entre 1 et 20 !');
+                return;
+            }
+            
+            const container = document.getElementById('qrContainer');
+            container.innerHTML = '';
+            generatedQRs = [];
+            
+            for (let i = 1; i <= teamCount; i++) {
+                const teamId = `${teamPrefix}${i.toString().padStart(2, '0')}`;
+                const gameURL = `${baseURL}/index.html?team=${teamId}`;
+                const qrAPIUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&format=png&data=${encodeURIComponent(gameURL)}`;
+                
+                const qrCard = document.createElement('div');
+                qrCard.className = 'qr-card';
+                qrCard.innerHTML = `
+                    <div class="team-info">
+                        <h3>${teamId}</h3>
+                        <p>Cyber Escape Game</p>
+                    </div>
+                    <div class="qr-code">
+                        <img src="${qrAPIUrl}" alt="QR Code ${teamId}" onerror="handleQRError(this, '${teamId}')">
+                    </div>
+                    <div class="team-info">
+                        <p><strong>Scanner pour commencer</strong></p>
+                        <p><small>URL: ${gameURL}</small></p>
+                        <button class="download-btn" onclick="downloadSingleQR('${teamId}', '${qrAPIUrl}')">
+                            📥 Télécharger
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(qrCard);
+                
+                generatedQRs.push({
+                    teamId: teamId,
+                    url: gameURL,
+                    qrUrl: qrAPIUrl
+                });
+            }
+            
+            console.log('QR Codes générés:', generatedQRs);
+        }
+        
+        function handleQRError(img, teamId) {
+            img.alt = `Erreur QR ${teamId}`;
+            img.src = 'data:image/svg+xml;base64,' + btoa(`
+                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="200" height="200" fill="#ff0000"/>
+                    <text x="100" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="14">
+                        Erreur QR
+                    </text>
+                    <text x="100" y="120" text-anchor="middle" fill="white" font-family="Arial" font-size="12">
+                        ${teamId}
+                    </text>
+                </svg>
+            `);
+        }
+        
+        function downloadSingleQR(teamId, qrUrl) {
+            const link = document.createElement('a');
+            link.href = qrUrl;
+            link.download = `qr-code-${teamId.toLowerCase()}.png`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        async function downloadAllQR() {
+            if (generatedQRs.length === 0) {
+                alert('⚠️ Générez d\'abord les QR codes !');
+                return;
+            }
+            
+            for (const qr of generatedQRs) {
+                await new Promise(resolve => setTimeout(resolve, 200)); // Délai pour éviter le spam
+                downloadSingleQR(qr.teamId, qr.qrUrl);
+            }
+        }
+        
+        // Génération automatique au chargement avec des valeurs par défaut
+        window.addEventListener('load', function() {
+            // Tentative de détection de l'URL actuelle
+            const currentHost = window.location.hostname;
+            if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+                const detectedURL = `${window.location.protocol}//${window.location.hostname}${window.location.pathname.replace('/qr-generator.html', '')}`;
+                document.getElementById('baseURL').value = detectedURL;
+            }
+        });
+        
+        // Génération des exemples pour démonstration
+        setTimeout(generateQRCodes, 1000);
+    </script>
+</body>
+</html>
