@@ -327,163 +327,154 @@
             {
                 id: 1,
                 title: "🔐 MOT DE PASSE COMPROMIS",
-                description: "Les hackers ont intercepté plusieurs communications. Analysez les données pour reconstituer le mot de passe administrateur.",
+                description: "Les hackers ont intercepté un mot de passe chiffré utilisé par l'administrateur système. Décodez-le pour accéder au système !",
                 content: `
-                    <p><strong>Communications interceptées :</strong></p>
-                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #333; margin: 15px 0; font-size: 13px;">
-                        <strong>Email 1 (IT Manager) :</strong> "Le nouveau code suit notre protocole. Prends les lettres IMPAIRES de CYBERSECURITY."<br><br>
-                        <strong>SMS (Admin) :</strong> "Positions 1,3,5,7,9,11 du mot CYBERSECURITY. Suffix = 2024."<br><br>
-                        <strong>Note :</strong> "Format final : [LETTRES_EXTRAITES][ANNEE]"
+                    <p><strong>Message intercepté du responsable IT :</strong></p>
+                    <div style="font-size: 14px; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #333; margin: 15px 0;">
+                        "J'ai changé le mot de passe comme convenu. J'ai utilisé notre méthode habituelle avec
+                        les numéros que tu connais. Le nouveau code d'accès est : <strong style="color: #ff6600;">12-15-7-9-14</strong>
+                        Comme toujours, on ajoute l'année en cours à la fin pour plus de sécurité."
                     </div>
-                    <p><strong>⚠️ Mission :</strong> Reconstituez le mot de passe complet.</p>
+                    <p><strong>⚠️ Votre mission :</strong> Déchiffrez ce mot de passe pour accéder au système de sécurité.</p>
                 `,
-                answer: "CBRUEI2024",
+                answer: "LOGIN2024",
                 hints: [
-                    "💡 CYBERSECURITY = C(1)Y(2)B(3)E(4)R(5)S(6)E(7)C(8)U(9)R(10)I(11)T(12)Y(13)",
-                    "💡 Positions impaires (1,3,5,7,9,11) = C-B-R-E-U-I",
-                    "💡 Résultat : CBRUEI + 2024 = CBRUEI2024"
+                    "💡 Position dans l'alphabet : A=1, B=2, C=3... Z=26",
+                    "💡 Décodage : 12=L, 15=O, 7=G, 9=I, 14=N",
+                    "💡 N'oubliez pas d'ajouter l'année 2024 à la fin du mot"
                 ]
             },
             {
                 id: 2,
-                title: "📧 ANALYSE FORENSIQUE D'EMAILS",
-                description: "Analysez les headers et contenus pour identifier les emails compromis. Attention aux détails techniques !",
+                title: "📧 DÉTECTION DE PHISHING",
+                description: "L'équipe de sécurité a intercepté plusieurs emails suspects. Identifiez les tentatives de phishing pour éviter le piège !",
                 content: `
-                    <p><strong>⚠️ MISSION :</strong> Identifiez les emails suspects en analysant les détails techniques.</p>
+                    <p><strong>⚠️ MISSION :</strong> Analysez ces emails et identifiez lesquels sont des tentatives de phishing.</p>
                     <div style="margin: 15px 0; padding: 10px; background: rgba(255,255,0,0.1); border: 1px solid #ffff00;">
-                        <strong>📝 FORMAT :</strong> Numéros séparés par des virgules (ex: 1,3,7)
+                        <strong>📝 FORMAT DE RÉPONSE ATTENDU :</strong> Numéros des emails suspects séparés par des virgules<br>
+                        <em>Exemple : 1,3,5 (sans espaces)</em>
                     </div>
-                    <div style="margin: 15px 0; font-size: 12px;">
-                        <strong>Email #1:</strong> From: security@payp4l.com | SPF: FAIL | DKIM: PASS | Subject: "Urgent verification needed"<br>
-                        <strong>Email #2:</strong> From: admin@university-paris.edu | SPF: PASS | DKIM: PASS | Subject: "System maintenance tonight"<br>
-                        <strong>Email #3:</strong> From: support@microsooft.com | SPF: PASS | DKIM: FAIL | Subject: "Account suspended"<br>
-                        <strong>Email #4:</strong> From: notifications@github.com | SPF: PASS | DKIM: PASS | Subject: "Push to main branch"<br>
-                        <strong>Email #5:</strong> From: noreply@amazon.co | SPF: PASS | DKIM: PASS | Subject: "Order confirmation #A7821"<br>
-                        <strong>Email #6:</strong> From: alerts@bank-agricole.fr | SPF: PASS | DKIM: PASS | Subject: "Transaction alert"<br>
-                        <strong>Email #7:</strong> From: service@gmai1.com | SPF: FAIL | DKIM: FAIL | Subject: "Storage full notification"<br>
-                        <strong>Email #8:</strong> From: team@slack.com | SPF: PASS | DKIM: PASS | Subject: "New message from @john"
+                    <div style="margin: 15px 0;">
+                        <strong>Email #1:</strong> De: securite@bank-creditt-agricol.com - Objet: "Vérifiez votre compte URGENT"<br>
+                        <strong>Email #2:</strong> De: notifications@paypal.com - Objet: "Récapitulatif mensuel"<br>
+                        <strong>Email #3:</strong> De: support@amazone-livraison.tk - Objet: "Problème avec votre commande"<br>
+                        <strong>Email #4:</strong> De: admin@university-campus.edu - Objet: "Maintenance programmée"<br>
+                        <strong>Email #5:</strong> De: security@microsoft.com - Objet: "Alerte sécurité Office 365"<br>
+                        <strong>Email #6:</strong> De: noreply@googIe-security.ml - Objet: "Activité suspecte détectée"
                     </div>
+                    <p><strong>🔍 Indices à rechercher :</strong> Fautes d'orthographe, domaines suspects, extensions inhabituelles...</p>
                 `,
-                answer: "1,3,5,7",
+                answer: "1,3,6",
                 hints: [
-                    "💡 Analysez les domaines : payp4l, microsooft, amazon.co (pas .com), gmai1 (chiffre 1)",
-                    "💡 SPF/DKIM FAIL indiquent des problèmes d'authentification",
-                    "💡 Les domaines légitimes : .edu, github.com, bank-agricole.fr, slack.com"
+                    "💡 Regardez attentivement les adresses email et les domaines",
+                    "💡 Les extensions .tk et .ml sont souvent utilisées par les fraudeurs",
+                    "💡 'creditt-agricol', 'amazone', 'googIe' (avec un i majuscule) sont des indices de phishing"
                 ]
             },
             {
                 id: 3,
-                title: "🔒 CRYPTANALYSE CÉSAR MODIFIÉ",
-                description: "Le système a été compromis par un chiffrement personnalisé. Cassez le code pour obtenir la clé de restauration.",
+                title: "🔒 DÉCHIFFREMENT QR",
+                description: "Reconstituez le QR code pour obtenir la clé de déchiffrement !",
                 content: `
-                    <p><strong>Message chiffré intercepté :</strong></p>
-                    <div style="font-size: 16px; text-align: center; margin: 20px; padding: 15px; background: #000; border: 1px solid #333; font-family: monospace;">
-                        ERFRGHEVGL
+                    <p>Le QR code a été fragmenté. Reconstituez-le mentalement et devinez ce qu'il contient :</p>
+                    <div style="text-align: center; margin: 20px;">
+                        <div style="display: inline-block; margin: 10px; padding: 20px; border: 2px solid #00ff00;">
+                            Fragment 1: [█████]<br>
+                            [█ █ █]<br>
+                            [█████]
+                        </div>
+                        <div style="display: inline-block; margin: 10px; padding: 20px; border: 2px solid #00ff00;">
+                            Fragment 2: DE<br>
+                            CR<br>
+                            YP
+                        </div>
+                        <div style="display: inline-block; margin: 10px; padding: 20px; border: 2px solid #00ff00;">
+                            Fragment 3: T7<br>
+                            ##<br>
+                            []
+                        </div>
                     </div>
-                    <div style="margin: 15px 0; font-size: 13px; background: rgba(0,0,0,0.3); padding: 10px;">
-                        <strong>Contexte trouvé dans les logs :</strong><br>
-                        - Algorithme détecté : ROT-13 (décalage de 13 lettres)<br>
-                        - Note du hacker : "J'ai utilisé le classique ROT-13"<br>
-                        - Le message déchiffré donne la clé de récupération
-                    </div>
-                    <p><strong>🎯 Objectif :</strong> Déchiffrez le message avec ROT-13.</p>
+                    <p>Une fois reconstitué, le QR code révèle un code de 8 caractères.</p>
                 `,
-                answer: "RESECURITY",
+                answer: "DECRYPT7",
                 hints: [
-                    "💡 ROT-13 : chaque lettre est décalée de 13 positions dans l'alphabet",
-                    "💡 E→R, R→E, F→S, R→E, T→G, H→U, E→R, V→I, G→T, L→Y",
-                    "💡 ERFRGHEVGL déchiffré = RESECURITY"
+                    "💡 Les fragments forment un mot anglais + chiffre",
+                    "💡 Fragment 2 donne 'DECRYPT'",
+                    "💡 Fragment 3 donne '7'"
                 ]
             },
             {
                 id: 4,
-                title: "🌐 AUDIT SÉCURITÉ RÉSEAU",
-                description: "Analysez les configurations réseau et identifiez les vulnérabilités critiques qui permettraient une intrusion.",
+                title: "🌐 RÉSEAUX WI-FI MALVEILLANTS",
+                description: "Identifiez les réseaux Wi-Fi dangereux !",
                 content: `
-                    <p><strong>⚠️ AUDIT :</strong> Identifiez les réseaux présentant des risques de sécurité critiques.</p>
-                    <div style="margin: 15px 0; padding: 10px; background: rgba(255,255,0,0.1);">
-                        <strong>📝 FORMAT :</strong> Numéros des réseaux vulnérables (ex: 2,4,7)
-                    </div>
-                    <div style="margin: 15px 0; font-size: 12px;">
-                        <strong>Réseau #1:</strong> "Campus-WiFi-5G" | WPA3 | Password: Random64char | MAC Filtering: ON<br>
-                        <strong>Réseau #2:</strong> "NETGEAR_DEFAULT" | WEP | Password: "password123" | Broadcast: ON<br>
-                        <strong>Réseau #3:</strong> "IT-Department-Secure" | WPA2-Enterprise | RADIUS Auth | Hidden SSID<br>
-                        <strong>Réseau #4:</strong> "Guest-Network" | OPEN | Captive Portal | Bandwidth: Limited<br>
-                        <strong>Réseau #5:</strong> "Conference-Room-A" | WPA2 | Password: ConferenceRoom2024! | Guest Access<br>
-                        <strong>Réseau #6:</strong> "Eduroam" | WPA2-Enterprise | Certificate Auth | Academic Network<br>
-                        <strong>Réseau #7:</strong> "TP-Link_8A7B" | WPS Enabled | Default Admin | Firmware: 2019<br>
-                        <strong>Réseau #8:</strong> "Administration" | WPA3 | Certificate + Biometric | Air-gapped
+                    <p>Parmi ces réseaux Wi-Fi, lesquels éviteriez-vous ? (Numéros séparés par des virgules)</p>
+                    <div style="margin: 15px 0;">
+                        <strong>Réseau #1:</strong> "Campus-WiFi-Secure" - WPA2, Mot de passe requis<br>
+                        <strong>Réseau #2:</strong> "Eduroam" - WPA2-Enterprise, Authentification<br>
+                        <strong>Réseau #3:</strong> "WiFi-Gratuit" - Ouvert, Aucune sécurité<br>
+                        <strong>Réseau #4:</strong> "Bibliotheque-Etudiant" - WPA2, Mot de passe affiché<br>
+                        <strong>Réseau #5:</strong> "Free-Internet-Fast" - Ouvert, Nom générique<br>
+                        <strong>Réseau #6:</strong> "BBOX-7A2F91" - WPA2, Nom par défaut box<br>
+                        <strong>Réseau #7:</strong> "Campus-IT-Admin" - WPA2, Réseau administrateur<br>
+                        <strong>Réseau #8:</strong> "Linksys" - WEP, Configuration par défaut
                     </div>
                 `,
-                answer: "2,4,7",
+                answer: "3,5,8",
                 hints: [
-                    "💡 WEP est obsolète et facilement cassable, même avec mot de passe complexe",
-                    "💡 Réseaux OPEN sans sécurité permettent interception de trafic",
-                    "💡 WPS activé + firmware obsolète + admin par défaut = multiple vulnérabilités"
+                    "💡 Évitez les réseaux ouverts et les noms trop génériques",
+                    "💡 Le WEP est obsolète et facilement cassé",
+                    "💡 Les configurations par défaut sont dangereuses"
                 ]
             },
             {
                 id: 5,
-                title: "💾 INGÉNIERIE SOCIALE AVANCÉE",
-                description: "Analysez les données personnelles divulguées pour reconstituer le mot de passe de la sauvegarde d'urgence.",
+                title: "💾 RÉCUPÉRATION DE SAUVEGARDE",
+                description: "Trouvez le mot de passe de la sauvegarde d'urgence !",
                 content: `
-                    <p><strong>Profil social media - Marcus Johnson (Admin IT) :</strong></p>
-                    <div style="margin: 20px; padding: 15px; background: #000; border: 1px solid #333; font-size: 13px;">
-                        <strong>LinkedIn :</strong> "Passionate about cybersecurity since my thesis on AES in 2018"<br>
-                        <strong>Facebook :</strong> "Happy 5th anniversary at CyberTech Inc! Started June 2019"<br>
-                        <strong>Instagram :</strong> "My dog Caesar is 7 years old today! #GermanShepherd #BestFriend"<br>
-                        <strong>Twitter :</strong> "Rome wasn't built in a day, but my network security was! #InfoSec"<br>
-                        <strong>GitHub :</strong> "AESCryptTools - Educational project from university (2018)"<br>
-                        <strong>Dating Profile :</strong> "Born in the eternal city, love traveling back every summer"
+                    <p>La sauvegarde est protégée par un mot de passe personnel du responsable IT :</p>
+                    <div style="margin: 20px; padding: 15px; background: #000; border: 1px solid #333;">
+                        <strong>Profil utilisateur :</strong><br>
+                        - Nom : Marcus Johnson<br>
+                        - Ville de naissance : Rome<br>
+                        - Animal préféré : Rex (son chien)<br>
+                        - Année d'embauche : 2018<br>
+                        - Passion : Voyages en Italie
                     </div>
-                    <div style="background: rgba(255,0,0,0.1); padding: 10px; margin: 15px 0;">
-                        <strong>Pattern détecté :</strong> [VILLE_NAISSANCE][ANIMAL][CRYPTO][ANNEE_THESE]
-                    </div>
+                    <p>Le mot de passe suit le pattern classique : [Lieu][Animal][Année]</p>
                 `,
-                answer: "RomeCaesarAES2018",
+                answer: "RomeRex2018",
                 hints: [
-                    "💡 Ville : Rome (eternal city mentionnée dans Twitter et dating profile)",
-                    "💡 Animal : Caesar (son chien allemand mentionné sur Instagram)",
-                    "💡 Crypto : AES (mentionné dans LinkedIn et GitHub project de 2018)"
+                    "💡 Combinez ville de naissance + animal + année d'embauche",
+                    "💡 Rome + Rex + 2018",
+                    "💡 Respectez la casse : première lettre majuscule pour chaque élément"
                 ]
             },
             {
                 id: 6,
-                title: "🛡️ ALGORITHME DE NEUTRALISATION FINAL",
-                description: "Utilisez l'algorithme de hash simplifié pour générer le code de neutralisation de l'attaque.",
+                title: "🛡️ CODE MAÎTRE FINAL",
+                description: "Calculez le code de neutralisation de l'attaque !",
                 content: `
-                    <p><strong>Algorithme de neutralisation détecté :</strong></p>
-                    <div style="margin: 20px; padding: 15px; background: #000; border: 1px solid #333; font-family: monospace; font-size: 13px;">
-                        <strong>ÉTAPE 1 :</strong> Calculer la somme ASCII des premières lettres :<br>
-                        - C (de CBRUEI2024) = 67<br>
-                        - Premier chiffre du résultat énigme 2 = 1 = ASCII 49<br>
-                        - R (de RESECURITY) = 82<br>
-                        - Premier chiffre du résultat énigme 4 = 2 = ASCII 50<br>
-                        - R (de RomeCaesarAES2018) = 82<br><br>
-                        
-                        <strong>ÉTAPE 2 :</strong> Somme totale :<br>
-                        67 + 49 + 82 + 50 + 82 = 330<br><br>
-                        
-                        <strong>ÉTAPE 3 :</strong> Modulo pour obtenir l'index :<br>
-                        330 MOD 5 = 0 (premier élément de la table)
-                    </div>82<br><br>
-                        
-                        <strong>ÉTAPE 2 :</strong> Somme totale :<br>
-                        67 + 49 + 82 + 50 + 82 = 330<br><br>
-                        
-                        <strong>ÉTAPE 3 :</strong> Modulo pour obtenir l'index :<br>
-                        330 MOD 5 = 0 (premier élément de la table)
+                    <p>Utilisez les codes précédents pour générer le code maître :</p>
+                    <div style="margin: 20px; padding: 15px; background: #000; border: 1px solid #333;">
+                        <strong>Formule de calcul :</strong><br>
+                        - Année LOGIN (2024)<br>
+                        + Nombre d'emails phishing (3)<br>
+                        + Chiffre de DECRYPT (7)<br>
+                        + Nombre de réseaux dangereux (3)<br>
+                        + Somme des chiffres de l'année 2018 (2+0+1+8=11)<br>
+                        = Total à convertir en code
                     </div>
-                    <div style="background: rgba(0,255,0,0.1); padding: 10px; margin: 15px 0;">
-                        <strong>🔢 Table de codes de neutralisation :</strong><br>
-                        Index 0→PHOENIX | Index 1→STORM | Index 2→TITAN | Index 3→VORTEX | Index 4→ZENITH
+                    <p>Le total vous donne un nombre. Ce nombre correspond à un code de neutralisation dans la table ci-dessous :</p>
+                    <div style="margin: 15px; font-size: 12px;">
+                        2048: REVENGE | 2049: SECURE | 2050: DEFEND | 2051: VICTORY
                     </div>
                 `,
-                answer: "PHOENIX",
+                answer: "REVENGE",
                 hints: [
-                    "💡 Somme ASCII : C(67) + 1(49) + R(82) + 2(50) + R(82) = 330",
-                    "💡 330 modulo 5 = 0 (reste de la division 330 ÷ 5 = 66 reste 0)",
-                    "💡 Index 0 dans la table correspond à PHOENIX"
+                    "💡 2024 + 3 + 7 + 3 + 11 = ?",
+                    "💡 2024 + 3 + 7 + 3 + 11 = 2048",
+                    "💡 2048 correspond au code REVENGE"
                 ]
             }
         ];
